@@ -167,6 +167,22 @@ func (p *Conn) SetWriteDeadline(t time.Time) error {
 	return p.conn.SetWriteDeadline(t)
 }
 
+func (p *Conn) SetKeepAlive(keepalive bool) error {
+	tcp, ok := p.conn.(*net.TCPConn)
+	if !ok {
+		return fmt.Errorf("Wrong conn type: %T", p.conn)
+	}
+	return tcp.SetKeepAlive(keepalive)
+}
+
+func (p *Conn) SetKeepAlivePeriod(d time.Duration) error {
+	tcp, ok := p.conn.(*net.TCPConn)
+	if !ok {
+		return fmt.Errorf("Wrong conn type: %T", p.conn)
+	}
+	return tcp.SetKeepAlivePeriod(d)
+}
+
 func (p *Conn) checkPrefix() error {
 	if p.proxyHeaderTimeout != 0 {
 		readDeadLine := time.Now().Add(p.proxyHeaderTimeout)
