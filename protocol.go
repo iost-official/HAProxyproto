@@ -148,13 +148,7 @@ func (p *Conn) DstAddr() net.Addr {
 // client is slow. Using a Deadline is recommended if this is called
 // before Read()
 func (p *Conn) RemoteAddr() net.Addr {
-	p.once.Do(func() {
-		if err := p.checkPrefix(); err != nil && err != io.EOF {
-			log.Printf("[ERR] Failed to read proxy prefix: %v", err)
-			p.Close()
-			p.bufReader = bufio.NewReader(p.conn)
-		}
-	})
+	p.checkPrefixOnce()
 	if p.srcAddr != nil && !p.useConnRemoteAddr {
 		return p.srcAddr
 	}
@@ -187,6 +181,16 @@ func (p *Conn) SetKeepAlivePeriod(d time.Duration) error {
 		return fmt.Errorf("Wrong conn type: %T", p.conn)
 	}
 	return tcp.SetKeepAlivePeriod(d)
+}
+
+func (p *Conn) checkPrefixOnce() {
+	p.once.Do(func() {
+		if err := p.checkPrefix(); err != nil && err != io.EOF {
+			log.Printf("[ERR] Failed to read proxy prefix: %v", err)
+			p.Close()
+			p.bufReader = bufio.NewReader(p.conn)
+		}
+	})
 }
 
 func (p *Conn) checkPrefix() error {
