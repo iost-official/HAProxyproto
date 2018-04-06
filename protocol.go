@@ -134,6 +134,12 @@ func (p *Conn) LocalAddr() net.Addr {
 	return p.conn.LocalAddr()
 }
 
+func (p *Conn) DstAddr() net.Addr {
+	p.checkPrefixOnce()
+	return p.dstAddr
+}
+
+
 // RemoteAddr returns the address of the client if the proxy
 // protocol is being used, otherwise just returns the address of
 // the socket peer. If there is an error parsing the header, the
